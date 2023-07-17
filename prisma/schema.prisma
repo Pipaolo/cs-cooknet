@@ -1,0 +1,101 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model User {
+    id      String @id @default(cuid())
+    clerkId String @unique
+
+    createdAt   DateTime     @default(now())
+    updatedAt   DateTime     @updatedAt
+    email       String       @unique
+    username    String
+    firstName   String
+    lastName    String
+    profileUrl  String
+    posts       Post[]
+    comments    Comment[]
+    recipeBooks RecipeBook[]
+    Rating      Rating[]
+}
+
+model Post {
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    title     String
+    content   String
+
+    author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+    authorId String
+
+    comments Comment[]
+    recipes  Recipe[]
+    ratings  Rating[]
+}
+
+model Rating {
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    value     Int
+
+    author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+    authorId String
+
+    post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+    postId String
+}
+
+model Comment {
+    id String @id @default(cuid())
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    content   String
+
+    author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+    authorId String
+
+    post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+    postId String
+}
+
+model RecipeBook {
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    title     String
+    recipes   Recipe[]
+
+    author   User   @relation(fields: [authorId], references: [id])
+    authorId String
+}
+
+model Recipe {
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    title     String
+    content   String
+
+    recipeBook   RecipeBook @relation(fields: [recipeBookId], references: [id], onDelete: Cascade)
+    recipeBookId String
+
+    postId String?
+    post   Post?   @relation(fields: [postId], references: [id], onDelete: Cascade)
+}
+
+model Example {
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
