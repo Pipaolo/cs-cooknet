@@ -1,11 +1,11 @@
 import { z } from "zod";
+import { type RouterOutputs } from "~/utils/api";
 
 export const PostsCreateTagSchema = z.object({
   name: z.string().min(1).max(255),
 });
 
 export const PostsCreateSchema = z.object({
-  title: z.string().min(1).max(255),
   content: z.string().min(1),
   tags: z.array(PostsCreateTagSchema),
 });
@@ -18,3 +18,6 @@ export const PostsAddCommentSchema = z.object({
 });
 
 export type PostsAddCommentSchema = z.infer<typeof PostsAddCommentSchema>;
+
+export type Post = RouterOutputs["post"]["getAll"][0];
+export type PostComment = RouterOutputs["post"]["getOnePostComments"][0];

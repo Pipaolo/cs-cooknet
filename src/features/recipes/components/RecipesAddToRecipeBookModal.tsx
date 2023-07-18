@@ -32,20 +32,22 @@ export const RecipesAddToRecipeBookModal = ({ recipe, ...props }: Props) => {
 
   const [selectedRecipeBookId, setSelectedRecipeBookId] = useState<string>("");
 
-  const checkIfInRecipeBook = useCallback((recipeBookId: string) => {
-    return false;
-    // const currentRecipeBooks = recipe.recipeBooks.map((recipeBook) => {
-    //   return recipeBook.id;
-    // });
+  const checkIfInRecipeBook = useCallback(
+    (recipeBookId: string) => {
+      const currentRecipeBooks = recipe.recipeBooks.map((recipeBook) => {
+        return recipeBook.id;
+      });
 
-    // return currentRecipeBooks.includes(recipeBookId);
-  }, []);
+      return currentRecipeBooks.includes(recipeBookId);
+    },
+    [recipe.recipeBooks]
+  );
 
   const toast = useToast();
   const options = useMemo(() => {
     return (
       recipeBooks.data?.map((recipeBook) => ({
-        existing: false,
+        existing: checkIfInRecipeBook(recipeBook.id),
         label: recipeBook.title,
         value: recipeBook.id,
       })) ?? []

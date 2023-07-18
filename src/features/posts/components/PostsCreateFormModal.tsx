@@ -1,11 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type UseFormReturn, useForm, Controller } from "react-hook-form";
 import { PostsCreateSchema } from "../types";
-import {
-  FormControlWrapper,
-  FormTextArea,
-  FormTextField,
-} from "~/components/form";
+import { FormControlWrapper, FormTextArea } from "~/components/form";
 import {
   Button,
   Heading,
@@ -19,7 +15,6 @@ import {
   type UseDisclosureReturn,
 } from "@chakra-ui/react";
 import SelectCreatable from "react-select/creatable";
-import { useState } from "react";
 import { api } from "~/utils/api";
 import { TRPCClientError } from "@trpc/client";
 
@@ -35,10 +30,7 @@ const PostsCreateTagsSelect = ({
 }: {
   form: UseFormReturn<PostsCreateSchema>;
 }) => {
-  const {
-    control,
-    formState: { errors },
-  } = form;
+  const { control } = form;
 
   return (
     <Controller
@@ -143,21 +135,10 @@ export const PostsCreateFormModal = (props: Props) => {
             onSubmit={(_) => void form.handleSubmit(onSubmit)(_)}
             className="flex flex-col space-y-4 p-4"
           >
-            <FormTextField
-              register={form.register("title")}
-              className="w-full"
-              placeholder="Enter the title of the recipe"
-              formControl={{
-                controlProps: {
-                  className: "w-full",
-                },
-                labelText: "Title",
-                errorMessage: form.formState.errors.title,
-              }}
-            />
             <FormTextArea
-              placeholder="Enter the content of the recipe"
+              placeholder="Enter the content of the post"
               register={form.register("content")}
+              maxLength={280}
               formControl={{
                 labelText: "Content",
                 errorMessage: form.formState.errors.content,

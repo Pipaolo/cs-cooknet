@@ -16,7 +16,7 @@ interface Props extends UseDisclosureReturn {
 
 export const RecipesExternalLinksModal = ({ recipe, ...props }: Props) => {
   return (
-    <Modal {...props}>
+    <Modal {...props} isCentered>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>
@@ -27,17 +27,17 @@ export const RecipesExternalLinksModal = ({ recipe, ...props }: Props) => {
         <ModalCloseButton />
         <ModalBody>
           <ul className="flex list-disc flex-col space-y-2 p-4">
-            {/* {recipe.videoUrls.map((link, index) => (
-              <li key={index}>
+            {recipe.videoLinks.map((link) => (
+              <li key={link.id}>
                 <a
-                  href={link}
+                  href={link.url}
                   target="_blank"
                   className="flex items-center space-x-2 underline"
                 >
-                  <span>{link}</span>
+                  <span>{link.label}</span>
                 </a>
               </li>
-            ))} */}
+            ))}
           </ul>
         </ModalBody>
       </ModalContent>

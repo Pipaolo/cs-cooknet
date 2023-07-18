@@ -31,7 +31,6 @@ export const PostsListItem = ({ post }: Props) => {
         />
         <div className="flex flex-col">
           <span>{post.author.email}</span>
-          <Heading size="sm">{post.title}</Heading>
         </div>
         <Spacer />
         <Menu>
@@ -68,48 +67,3 @@ export const PostsListItem = ({ post }: Props) => {
     </div>
   );
 };
-
-{
-  /* <div class="flex flex-col bg-white border border-black rounded-lg shadow hover:bg-gray-100">
-        <div class="row-span-2 p-3">
-        <h5 class="mb-2 text-2xl text-black"dark:text-white">Post #1</h5>
-    <h5 class="ps-3 mb-2 text-sm text-black"dark:text-white">By : this Person</h5>
-  </div>
-  
-  <div class="flex flex-row border border-black"> 
-      <img class="object-cover w-full rounded-t-lg h-96 p-0 border border-black" src="https://flowbite.com/docs/images/blog/image-4.jpg" alt=""/>
-
-        <!-- FULL COMMENT CONTAINER -->
-    <div class="flex flex-col ms-0.5 me-0 leading-normal border-black border">
-      <!-- Comment Container -->
-      <div class="flex flex-col border p-1 border-red-900">
-
-        <!-- Profile Picture & username -->
-        <div class="flex flex-row">
-          <img class="rounded-full h-16 w-16 " src="https://flowbite.com/docs/images/blog/image-4.jpg" alt=""/>
-          <a href="">User 1</a>
-        </div>
-        <!-- Comment -->
-        <p class=" font-normal dark:text-gray-400 border border-t-0 black p-1">
-         Here are the biggest enterprise technology acquisitions of 2021 so far, in reverse chronological order.</p>
-
-      </div>
-      <!-- Comment Container -->
-      <div class="flex flex-col border p-1 border-red-900">
-
-        <!-- Profile Picture & username -->
-        <div class="flex flex-row">
-          <img class="rounded-full h-16 w-16 " src="https://flowbite.com/docs/images/blog/image-4.jpg" alt=""/>
-          <a href="">User 2</a>
-        </div>
-        <!-- Comment -->
-        <p class=" font-normal dark:text-gray-400 border border-t-0 black p-1">
-         Here are the biggest enterprise technology acquisitions of 2021 so far, in reverse chronological order.</p>
-
-      </div>
-    </div>
-
-  </div>
-</div>
- */
-}

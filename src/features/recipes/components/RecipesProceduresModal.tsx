@@ -7,31 +7,29 @@ import {
   ModalOverlay,
   type UseDisclosureReturn,
 } from "@chakra-ui/react";
-import { GiBasket } from "react-icons/gi";
+import { FaClipboard } from "react-icons/fa";
 import { type Recipe } from "../types";
 
 interface Props extends UseDisclosureReturn {
   recipe: Recipe;
 }
 
-export const RecipesIngredientsModal = ({ recipe, ...props }: Props) => {
+export const RecipesProceduresModal = ({ recipe, ...props }: Props) => {
   return (
     <Modal {...props} isCentered>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>
           <div className="flex items-center space-x-4">
-            <GiBasket /> <span>Ingredients</span>
+            <FaClipboard /> <span>Procedures</span>
           </div>
         </ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <ol className="flex list-decimal flex-col space-y-2 p-4">
-            {recipe.ingredients.map((ingredient) => (
-              <li key={ingredient.id}>
-                <span className="flex items-center">
-                  {ingredient.quantity}x - {ingredient.name}
-                </span>
+            {recipe.procedures.map((procedure, index) => (
+              <li key={index}>
+                <span>{procedure}</span>
               </li>
             ))}
           </ol>

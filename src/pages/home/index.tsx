@@ -4,18 +4,18 @@ import { useRouter } from "next/router";
 import { FaPlus } from "react-icons/fa";
 import { AppBar } from "~/components/layout";
 import { PrivateLayout } from "~/components/layout/PrivateLayout";
-import { HomeRecipeItem } from "~/features/home/components";
+import { PostsCreateFormModal } from "~/features";
+import { HomePostItem, HomeRecipeItem } from "~/features/home/components";
 import { api } from "~/utils/api";
 
 const HomePage = () => {
   const router = useRouter();
 
   const createPostDisclosure = useDisclosure();
-  const createRecipeDisclosure = useDisclosure();
-  const recipes = api.recipe.getAll.useQuery();
+  const posts = api.post.getAll.useQuery();
 
   const renderContent = () => {
-    if (recipes.isLoading) {
+    if (posts.isLoading) {
       return Array.from({ length: 10 }).map((_, index) => {
         return (
           <Skeleton key={index} className="aspect-square rounded">
@@ -25,8 +25,15 @@ const HomePage = () => {
       });
     }
 
-    return recipes.data?.map((recipe) => {
-      return <HomeRecipeItem key={recipe.id} recipePost={recipe} />;
+    return posts.data?.map((post) => {
+      switch (post.type) {
+        case "RECIPE":
+          return <HomeRecipeItem key={post.id} post={post} />;
+        case "SOCIAL":
+          return <HomePostItem key={post.id} post={post} />;
+        default:
+          return <div></div>;
+      }
     });
   };
 
@@ -62,6 +69,8 @@ const HomePage = () => {
       >
         <div className="flex w-full flex-col space-y-8">{renderContent()}</div>
       </PrivateLayout>
+
+      <PostsCreateFormModal {...createPostDisclosure} />
     </>
   );
 };
