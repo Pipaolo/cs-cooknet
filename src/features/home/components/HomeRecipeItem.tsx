@@ -130,13 +130,11 @@ export const HomeRecipeItem = ({ post }: Props) => {
     <div className="grid grid-cols-12 gap-2">
       {/* Header */}
       <div className="col-span-12 flex items-start space-x-2 ">
-        <div className="relative h-14 w-14 rounded-full bg-stone-400">
-          <img
-            alt="profile"
-            src={post.author.profileUrl}
-            className="absolute inset-0 "
-          />
-        </div>
+        <img
+          alt="profile"
+          src={post.author.profileUrl}
+          className="h-14 w-14 rounded-full "
+        />
         <div className="flex flex-col">
           <Heading size={"md"}>{recipe.title}</Heading>
           <span className="stone-500 text-sm underline">
