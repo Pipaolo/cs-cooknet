@@ -2,7 +2,7 @@ import { Heading } from "@chakra-ui/react";
 import Head from "next/head";
 import { PrivateLayout } from "~/components/layout/PrivateLayout";
 
-const TrendingPage = () => {
+const AccountSettingsPage = () => {
   return (
     <>
       <Head>
@@ -23,4 +23,4 @@ const TrendingPage = () => {
   );
 };
 
-export default TrendingPage;
+export default AccountSettingsPage;
