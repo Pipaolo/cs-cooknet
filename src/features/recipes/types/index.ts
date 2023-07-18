@@ -22,6 +22,7 @@ export type RecipeVideoLinkSchema = z.infer<typeof RecipeVideoLinkSchema>;
 
 export const RecipeCreateSchema = z.object({
   title: z.string().min(1).max(255),
+  image: z.string().optional(),
   content: z.string().min(1),
   tags: z
     .array(

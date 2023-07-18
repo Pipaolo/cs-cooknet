@@ -54,11 +54,13 @@ export const recipeRouter = createTRPCRouter({
           authorId: ctx.user.id,
           content: input.content,
           type: "RECIPE",
+
           tags: input.tags.map((tag) => tag.value),
           recipe: {
             create: {
               title: input.title,
               authorId: ctx.user.id,
+              image: input.image,
               procedures: input.procedures.map((procedure) => procedure.value),
               videoLinks: {
                 createMany: {

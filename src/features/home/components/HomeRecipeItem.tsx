@@ -10,12 +10,20 @@ import {
   Spacer,
   Tooltip,
   useDisclosure,
+  useToast,
 } from "@chakra-ui/react";
 import { type RecipePost } from "~/features/recipes/types";
 import { DateTime } from "luxon";
 import Image from "next/image";
 import { HomeRecipeItemComments } from "./HomeRecipeItemComments";
-import { FaBookmark, FaClipboard, FaEllipsisV, FaLink } from "react-icons/fa";
+import {
+  FaBookmark,
+  FaClipboard,
+  FaEllipsisV,
+  FaLink,
+  FaTrash,
+  FaTrashAlt,
+} from "react-icons/fa";
 import { GiFruitBowl } from "react-icons/gi";
 import { RecipesAddToRecipeBookModal } from "~/features/recipes/components/RecipesAddToRecipeBookModal";
 import {
@@ -24,6 +32,11 @@ import {
   RecipesProceduresModal,
 } from "~/features/recipes";
 import { type Post } from "~/features/posts";
+import { useMemo } from "react";
+import { useAuth, useUser } from "@clerk/nextjs";
+import { api } from "~/utils/api";
+import { ConfirmationModal } from "~/components/modals";
+import { TRPCClientError } from "@trpc/client";
 
 interface Props {
   post: Post;
@@ -33,12 +46,83 @@ export const HomeRecipeItem = ({ post }: Props) => {
   const formattedDate = DateTime.fromJSDate(post.createdAt).toLocaleString(
     DateTime.DATE_FULL
   );
+  const { user } = useUser();
+  const toast = useToast();
   const recipe = post.recipe;
+  const trpcUtils = api.useContext();
+  const deleteOne = api.post.deleteOne.useMutation();
 
+  const deleteDisclosure = useDisclosure();
   const addToRecipeBookDisclosure = useDisclosure();
   const externalLinksDisclosure = useDisclosure();
   const ingredientsDisclosure = useDisclosure();
   const proceduresDisclosure = useDisclosure();
+
+  const isAuthor = useMemo(() => {
+    if (!user) return false;
+    return user.id === post.author.clerkId;
+  }, [user, post.author.clerkId]);
+
+  const onDeleteConfirmed = async () => {
+    try {
+      await deleteOne.mutateAsync({
+        postId: post.id,
+      });
+
+      toast({
+        title: "Success",
+        description: "Post deleted successfully",
+        status: "success",
+        duration: 3000,
+      });
+
+      await trpcUtils.post.getAll.invalidate();
+    } catch (error) {
+      if (error instanceof TRPCClientError) {
+        toast({
+          title: "An error occurred.",
+          description: error.message,
+          status: "error",
+          duration: 3000,
+        });
+      }
+    }
+  };
+
+  const renderMenuItems = () => {
+    return (
+      <>
+        <MenuItem
+          onClick={ingredientsDisclosure.onOpen}
+          icon={<GiFruitBowl className="text-stone-500" size={"1rem"} />}
+        >
+          Ingredients
+        </MenuItem>
+        <MenuItem
+          onClick={proceduresDisclosure.onOpen}
+          icon={<FaClipboard className="text-stone-500" size={"1rem"} />}
+        >
+          Procedure
+        </MenuItem>
+        <MenuItem
+          onClick={externalLinksDisclosure.onOpen}
+          icon={<FaLink className="text-stone-500" size={"1rem"} />}
+        >
+          External Links
+        </MenuItem>
+        {isAuthor && (
+          <MenuItem
+            onClick={() => {
+              deleteDisclosure.onOpen();
+            }}
+            icon={<FaTrash className="text-stone-500" size={"1rem"} />}
+          >
+            Delete
+          </MenuItem>
+        )}
+      </>
+    );
+  };
 
   if (recipe === null) return <div></div>;
 
@@ -92,26 +176,7 @@ export const HomeRecipeItem = ({ post }: Props) => {
                 icon={<FaEllipsisV className="text-stone-500" />}
               />
             </Tooltip>
-            <MenuList className="font-medium">
-              <MenuItem
-                onClick={ingredientsDisclosure.onOpen}
-                icon={<GiFruitBowl className="text-stone-500" size={"1rem"} />}
-              >
-                Ingredients
-              </MenuItem>
-              <MenuItem
-                onClick={proceduresDisclosure.onOpen}
-                icon={<FaClipboard className="text-stone-500" size={"1rem"} />}
-              >
-                Procedure
-              </MenuItem>
-              <MenuItem
-                onClick={externalLinksDisclosure.onOpen}
-                icon={<FaLink className="text-stone-500" size={"1rem"} />}
-              >
-                External Links
-              </MenuItem>
-            </MenuList>
+            <MenuList className="font-medium">{renderMenuItems()}</MenuList>
           </Menu>
         </div>
       </div>
@@ -120,7 +185,10 @@ export const HomeRecipeItem = ({ post }: Props) => {
         <Image
           fill
           className=" rounded-md object-cover"
-          src="https://plus.unsplash.com/premium_photo-1664360228046-a0a7ccf4fb38?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
+          src={
+            recipe?.image ??
+            "https://plus.unsplash.com/premium_photo-1664360228046-a0a7ccf4fb38?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
+          }
           alt="food"
         />
       </div>
@@ -133,6 +201,14 @@ export const HomeRecipeItem = ({ post }: Props) => {
       <RecipesExternalLinksModal {...externalLinksDisclosure} recipe={recipe} />
       <RecipesIngredientsModal {...ingredientsDisclosure} recipe={recipe} />
       <RecipesProceduresModal {...proceduresDisclosure} recipe={recipe} />
+      <ConfirmationModal
+        {...deleteDisclosure}
+        titleText="Delete Post?"
+        descriptionText="You cannot undo this action."
+        isLoading={deleteOne.isLoading}
+        onConfirm={() => void onDeleteConfirmed()}
+        onCancel={deleteDisclosure.onClose}
+      />
     </div>
   );
 };

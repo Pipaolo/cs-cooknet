@@ -97,7 +97,8 @@ model Recipe {
     updatedAt DateTime @updatedAt
     title     String
 
-    author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+    image    String?
+    author   User    @relation(fields: [authorId], references: [id], onDelete: Cascade)
     authorId String
 
     postId String? @unique

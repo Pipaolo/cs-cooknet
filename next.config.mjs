@@ -7,6 +7,9 @@ await import("./src/env.mjs");
 /** @type {import("next").NextConfig} */
 const config = {
   reactStrictMode: true,
+  experimental: {
+    esmExternals: false,
+  },
 
   /**
    * If you have `experimental: { appDir: true }` set, then you must comment the below `i18n` config
@@ -24,6 +27,12 @@ const config = {
       {
         protocol: "https",
         hostname: "plus.unsplash.com",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "uploadthing.com",
         port: "",
         pathname: "/**",
       },
