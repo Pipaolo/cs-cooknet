@@ -24,7 +24,8 @@ model User {
     posts       Post[]
     comments    Comment[]
     recipeBooks RecipeBook[]
-    Rating      Rating[]
+    ratings     Rating[]
+    Recipe      Recipe[]
 }
 
 model Post {
@@ -40,6 +41,7 @@ model Post {
     comments Comment[]
     recipes  Recipe[]
     ratings  Rating[]
+    tags     String[]
 }
 
 model Rating {
@@ -74,24 +76,27 @@ model RecipeBook {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
     title     String
-    recipes   Recipe[]
 
-    author   User   @relation(fields: [authorId], references: [id])
+    author   User     @relation(fields: [authorId], references: [id])
     authorId String
+    recipes  Recipe[]
 }
 
 model Recipe {
-    id        String   @id @default(cuid())
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-    title     String
-    content   String
+    id          String   @id @default(cuid())
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+    title       String
+    content     String
+    ingredients String[]
+    videoUrls   String[]
 
-    recipeBook   RecipeBook @relation(fields: [recipeBookId], references: [id], onDelete: Cascade)
-    recipeBookId String
+    author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+    authorId String
 
-    postId String?
-    post   Post?   @relation(fields: [postId], references: [id], onDelete: Cascade)
+    postId      String?
+    post        Post?        @relation(fields: [postId], references: [id], onDelete: Cascade)
+    recipeBooks RecipeBook[]
 }
 
 model Example {

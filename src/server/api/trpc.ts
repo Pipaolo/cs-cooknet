@@ -15,10 +15,18 @@
  * These allow you to access things when processing a request, like the database, the session, etc.
  */
 import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
+import {
+  getAuth,
+  type SignedInAuthObject,
+  type SignedOutAuthObject,
+} from "@clerk/nextjs/server";
 
 import { prisma } from "~/server/db";
 
 type CreateContextOptions = Record<string, never>;
+type AuthContext = {
+  auth: SignedInAuthObject | SignedOutAuthObject;
+};
 
 /**
  * This helper generates the "internals" for a tRPC context. If you need to use it, you can export
@@ -30,8 +38,9 @@ type CreateContextOptions = Record<string, never>;
  *
  * @see https://create.t3.gg/en/usage/trpc#-serverapitrpcts
  */
-const createInnerTRPCContext = (_opts: CreateContextOptions) => {
+const createInnerTRPCContext = (_opts: AuthContext) => {
   return {
+    auth: _opts.auth,
     prisma,
   };
 };
@@ -43,7 +52,9 @@ const createInnerTRPCContext = (_opts: CreateContextOptions) => {
  * @see https://trpc.io/docs/context
  */
 export const createTRPCContext = (_opts: CreateNextContextOptions) => {
-  return createInnerTRPCContext({});
+  return createInnerTRPCContext({
+    auth: getAuth(_opts.req),
+  });
 };
 
 /**
@@ -53,10 +64,11 @@ export const createTRPCContext = (_opts: CreateNextContextOptions) => {
  * ZodErrors so that you get typesafety on the frontend if your procedure fails due to validation
  * errors on the backend.
  */
-import { initTRPC } from "@trpc/server";
+import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 import { type OpenApiMeta } from "trpc-openapi";
+import { type User } from "@prisma/client";
 
 const t = initTRPC
   .context<typeof createTRPCContext>()
@@ -74,6 +86,29 @@ const t = initTRPC
       };
     },
   });
+
+const isAuthenticated = t.middleware(async ({ next, ctx }) => {
+  if (!ctx.auth.userId) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+
+  const user = await ctx.prisma.user.findFirst({
+    where: {
+      clerkId: ctx.auth.userId,
+    },
+  });
+
+  if (!user) {
+    throw new TRPCError({ code: "UNAUTHORIZED", message: "User not found" });
+  }
+
+  return next({
+    ctx: {
+      auth: ctx.auth,
+      user,
+    },
+  });
+});
 
 /**
  * 3. ROUTER & PROCEDURE (THE IMPORTANT BIT)
@@ -97,3 +132,5 @@ export const createTRPCRouter = t.router;
  * are logged in.
  */
 export const publicProcedure = t.procedure;
+
+export const privateProcedure = t.procedure.use(isAuthenticated);
