@@ -4,17 +4,19 @@ import SideNavigationBar from "./SideNavigationBar";
 
 interface Props {
   children: React.ReactNode;
+  appbar?: React.ReactNode;
   containerProps?: React.HTMLAttributes<HTMLDivElement>;
 }
 
 export const PrivateLayout = ({ children, ...props }: Props) => {
   return (
     <main className=" flex h-full min-h-screen w-full justify-center">
-      <div className="container flex flex-grow space-x-2">
+      <div className="container relative flex flex-grow space-x-2">
         {/* Side Bar */}
         <SideNavigationBar />
         <div className="flex flex-grow flex-col">
-          <AppBar />
+          {/* App Bar */}
+          {props.appbar ?? <AppBar />}
           {/* Content */}
           <div
             {...props.containerProps}

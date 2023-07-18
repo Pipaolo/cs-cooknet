@@ -25,14 +25,13 @@ import { api, type RouterOutputs } from "~/utils/api";
 import { RecipesExternalLinksModal } from "./RecipesExternalLinksModal";
 import { RecipesIngredientsModal } from "./RecipesIngredientsModal";
 import { RecipesAddToRecipeBookModal } from "./RecipesAddToRecipeBookModal";
-
-export type Recipe = RouterOutputs["recipe"]["getAll"][0];
+import { type RecipePost } from "../types";
 
 interface Props {
-  recipe: Recipe;
+  recipePost: RecipePost;
 }
 
-export const RecipesGridItem = ({ recipe }: Props) => {
+export const RecipesGridItem = ({ recipePost }: Props) => {
   const addToRecipeBookDisclosure = useDisclosure();
   const externalLinksDisclosure = useDisclosure();
   const ingredientsDisclosure = useDisclosure();
@@ -42,9 +41,9 @@ export const RecipesGridItem = ({ recipe }: Props) => {
       <div className="flex items-start justify-between">
         <div className="flex flex-col overflow-hidden">
           <Heading size={"sm"} className="line-clamp-3">
-            {recipe.title}
+            {recipePost.recipe?.title}
           </Heading>
-          <Text className="line-clamp-1">by {recipe.author.email}</Text>
+          <Text className="line-clamp-1">by {recipePost.author.email}</Text>
         </div>
         <div className="flex">
           <Tooltip label="Add to recipe book">
@@ -97,25 +96,34 @@ export const RecipesGridItem = ({ recipe }: Props) => {
       </div>
       {/* Tags */}
       <div className="flex flex-wrap gap-1 text-xs font-semibold">
-        <span className="rounded-md border px-4 py-1">Tag 1</span>
-        <span className="rounded-md border px-4 py-1">Tag 2</span>
-        <span className="rounded-md border px-4 py-1">Tag 3</span>
-        <span className="rounded-md border px-4 py-1">Tag 4</span>
-        <span className="rounded-md border px-4 py-1">Tag 5</span>
-        <span className="rounded-md border px-4 py-1">Tag 6</span>
-        <span className="rounded-md border px-4 py-1">Tag 7</span>
-        <span className="rounded-md border px-4 py-1">Tag 8</span>
+        {recipePost.tags.map((tag, i) => {
+          return (
+            <span key={i} className="rounded-md border px-4 py-1">
+              {tag}
+            </span>
+          );
+        })}
       </div>
       {/* Description */}
       <div className="rounded-md border p-4">
-        <p className="line-clamp-6 break-all ">{recipe.content}</p>
+        <p className="line-clamp-6 break-all ">{recipePost.content}</p>
       </div>
-      <RecipesAddToRecipeBookModal
-        {...addToRecipeBookDisclosure}
-        recipe={recipe}
-      />
-      <RecipesExternalLinksModal {...externalLinksDisclosure} recipe={recipe} />
-      <RecipesIngredientsModal {...ingredientsDisclosure} recipe={recipe} />
+      {recipePost.recipe && (
+        <>
+          <RecipesAddToRecipeBookModal
+            {...addToRecipeBookDisclosure}
+            recipe={recipePost.recipe}
+          />
+          <RecipesExternalLinksModal
+            {...externalLinksDisclosure}
+            recipe={recipePost.recipe}
+          />
+          <RecipesIngredientsModal
+            {...ingredientsDisclosure}
+            recipe={recipePost.recipe}
+          />
+        </>
+      )}
     </div>
   );
 };

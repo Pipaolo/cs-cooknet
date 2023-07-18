@@ -1,14 +1,27 @@
 import Head from "next/head";
 import RecipesAppBar from "~/features/recipes/components/RecipesAppBar";
-import { type SubmitHandler, useForm, useFieldArray } from "react-hook-form";
+import {
+  type SubmitHandler,
+  useForm,
+  useFieldArray,
+  Controller,
+} from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { RecipeCreateSchema } from "~/features/recipes/types";
 import { Button, IconButton, useToast } from "@chakra-ui/react";
-import { FormTextArea, FormTextField } from "~/components/form";
+import {
+  FormControlWrapper,
+  FormTextArea,
+  FormTextField,
+} from "~/components/form";
 import { FaTrash } from "react-icons/fa";
 import { api } from "~/utils/api";
 import { useRouter } from "next/router";
 import { TRPCClientError } from "@trpc/client";
+import { RecipesCreateIngredientsForm } from "~/features/recipes/components/RecipesCreateIngredientsForm";
+import { RecipesCreateVideoUrlsForm } from "~/features/recipes/components/RecipesCreateVideoUrlsForm";
+import SelectCreatable from "react-select/creatable";
+import { RecipesCreateProceduresForm } from "~/features/recipes/components/RecipesCreateProceduresForm";
 
 const RecipesCreatePage = () => {
   const toast = useToast();
@@ -18,17 +31,25 @@ const RecipesCreatePage = () => {
   const form = useForm<RecipeCreateSchema>({
     resolver: zodResolver(RecipeCreateSchema),
     defaultValues: {
-      ingredients: [
+      procedures: [
         {
           value: "",
         },
       ],
-      videoUrls: [
+      ingredients: [
         {
-          value: "",
+          name: "",
+          quantity: 0,
+          unit: "",
         },
       ],
     },
+  });
+
+  const proceduresFieldArray = useFieldArray({
+    control: form.control,
+    keyName: "id",
+    name: "procedures",
   });
 
   const ingredientsFieldArray = useFieldArray({
@@ -47,7 +68,7 @@ const RecipesCreatePage = () => {
     data: RecipeCreateSchema
   ) => {
     try {
-      const response = await createOne.mutateAsync(data);
+      await createOne.mutateAsync(data);
 
       toast({
         title: "Success",
@@ -56,7 +77,7 @@ const RecipesCreatePage = () => {
         duration: 5000,
         isClosable: true,
       });
-      await router.push("/home/recipes");
+      await router.push("/home");
     } catch (error) {
       let message = "";
       if (error instanceof TRPCClientError) {
@@ -111,91 +132,67 @@ const RecipesCreatePage = () => {
                   errorMessage: form.formState.errors.content,
                 }}
               />
-
-              <div className="flex flex-col space-y-4">
-                <div className="flex items-center space-x-4">
-                  <h3 className="text-xl font-bold">
-                    Ingredients ({ingredientsFieldArray.fields.length})
-                  </h3>
-
-                  <Button
-                    size={"sm"}
-                    colorScheme="stone"
-                    onClick={() =>
-                      ingredientsFieldArray.append({
-                        value: "",
-                      })
-                    }
-                  >
-                    Add Ingredient
-                  </Button>
-                </div>
-                {ingredientsFieldArray.fields.map((field, index) => {
+              <Controller
+                name="tags"
+                control={form.control}
+                render={({ field, fieldState }) => {
                   return (
-                    <div className="flex items-end space-x-4" key={field.id}>
-                      <FormTextField
-                        register={form.register(`ingredients.${index}.value`)}
-                        placeholder="Enter the name of the ingredient"
-                        formControl={{
-                          labelText: "Name",
-
-                          errorMessage:
-                            form.formState.errors?.ingredients?.[index]?.value,
+                    <FormControlWrapper
+                      labelText="Tags"
+                      errorMessage={fieldState.error}
+                    >
+                      <SelectCreatable<{ value: string; label: string }, true>
+                        isMulti
+                        options={[]}
+                        name={field.name}
+                        ref={field.ref}
+                        value={field.value?.map((value) => {
+                          return {
+                            label: value.value,
+                            value: value.value,
+                          };
+                        })}
+                        classNames={{
+                          control: (_) =>
+                            `${
+                              _.isFocused
+                                ? "shadow-none ring-1 ring-stone-500 border-stone-500"
+                                : ""
+                            }`,
+                          multiValue: (_) =>
+                            "bg-stone-500 rounded-md text-white p-1 space-x-2",
+                          multiValueLabel: (_) => "text-white",
+                          multiValueRemove: (_) =>
+                            "text-white rounded-md aspect-square",
                         }}
-                      />
-                      <IconButton
-                        icon={<FaTrash />}
-                        isDisabled={ingredientsFieldArray.fields.length === 1}
-                        onClick={() => ingredientsFieldArray.remove(index)}
-                        colorScheme={"red"}
-                        aria-label="Delete Ingredient"
-                      />
-                    </div>
-                  );
-                })}
-              </div>
-              <div className="flex flex-col space-y-4">
-                <div className="flex items-center space-x-4">
-                  <h3 className="text-xl font-bold">
-                    Video Urls ({videoUrlsFieldArray.fields.length})
-                  </h3>
+                        placeholder="Enter tags for the recipe"
+                        onChange={(newValues) => {
+                          const values = newValues.map((newValue) => {
+                            return {
+                              value: newValue.value,
+                            };
+                          });
 
-                  <Button
-                    size={"sm"}
-                    colorScheme="stone"
-                    onClick={() =>
-                      videoUrlsFieldArray.append({
-                        value: "",
-                      })
-                    }
-                  >
-                    Add Video URL
-                  </Button>
-                </div>
-                {videoUrlsFieldArray.fields.map((field, index) => {
-                  return (
-                    <div className="flex items-end space-x-4" key={field.id}>
-                      <FormTextField
-                        register={form.register(`videoUrls.${index}.value`)}
-                        placeholder="Enter video url"
-                        formControl={{
-                          labelText: "URL",
-                          errorMessage:
-                            form.formState.errors?.videoUrls?.[index]?.value,
+                          field.onChange(values);
                         }}
+                        onBlur={field.onBlur}
                       />
-                      <IconButton
-                        icon={<FaTrash />}
-                        isDisabled={videoUrlsFieldArray.fields.length === 1}
-                        onClick={() => videoUrlsFieldArray.remove(index)}
-                        colorScheme={"red"}
-                        aria-label="Delete Video Url"
-                      />
-                    </div>
+                    </FormControlWrapper>
                   );
-                })}
-              </div>
-
+                }}
+              />
+              <RecipesCreateProceduresForm
+                form={form}
+                fieldArray={proceduresFieldArray}
+              />
+              <RecipesCreateIngredientsForm
+                form={form}
+                fieldArray={ingredientsFieldArray}
+              />
+              <RecipesCreateVideoUrlsForm
+                form={form}
+                fieldArray={videoUrlsFieldArray}
+              />
               <Button
                 type="submit"
                 colorScheme="green"

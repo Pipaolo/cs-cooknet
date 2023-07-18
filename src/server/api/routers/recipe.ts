@@ -12,41 +12,22 @@ export const recipeRouter = createTRPCRouter({
         .nullish()
     )
     .query(async ({ ctx, input }) => {
-      const recipes = await ctx.prisma.recipe.findMany({
+      const recipePosts = await ctx.prisma.post.findMany({
         where: {
-          OR: !input?.query
-            ? undefined
-            : [
-                {
-                  title: {
-                    contains: input?.query,
-                    mode: "insensitive",
-                  },
-                },
-                {
-                  content: {
-                    contains: input?.query,
-                    mode: "insensitive",
-                  },
-                },
-                {
-                  ingredients: {
-                    hasSome: [input?.query],
-                  },
-                },
-              ],
+          type: {
+            equals: "RECIPE",
+          },
         },
-
         orderBy: {
           createdAt: "desc",
         },
         include: {
+          recipe: true,
           author: true,
-          recipeBooks: true,
         },
       });
 
-      return recipes;
+      return recipePosts;
     }),
   createOne: privateProcedure
     .input(RecipeCreateSchema)
@@ -61,16 +42,42 @@ export const recipeRouter = createTRPCRouter({
           videoUrls: input.videoUrls.map((videoUrl) => videoUrl.value),
         },
        */
-      const recipe = await ctx.prisma.recipe.create({
+
+      const recipePost = await ctx.prisma.post.create({
         data: {
           authorId: ctx.user.id,
           content: input.content,
-          title: input.title,
-          ingredients: input.ingredients.map((ingredient) => ingredient.value),
-          videoUrls: input.videoUrls.map((videoUrl) => videoUrl.value),
+          type: "RECIPE",
+          tags: input.tags.map((tag) => tag.value),
+          recipe: {
+            create: {
+              title: input.title,
+              authorId: ctx.user.id,
+              procedures: input.procedures.map((procedure) => procedure.value),
+              videoLinks: {
+                createMany: {
+                  data: input.videoUrls.map((videoUrl) => ({
+                    url: videoUrl.url,
+                    label: videoUrl.label,
+                  })),
+                  skipDuplicates: true,
+                },
+              },
+              ingredients: {
+                createMany: {
+                  data: input.ingredients.map((ingredient) => ({
+                    name: ingredient.name,
+                    quantity: ingredient.quantity,
+                    unit: ingredient.unit,
+                  })),
+                  skipDuplicates: true,
+                },
+              },
+            },
+          },
         },
       });
 
-      return recipe;
+      return recipePost;
     }),
 });

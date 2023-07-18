@@ -84,7 +84,7 @@ const SideNavigationBar = () => {
     return initialItems.map((item) => {
       return {
         ...item,
-        isActive: router.pathname.startsWith(item.href),
+        isActive: router.pathname.endsWith(item.href),
       };
     });
   }, [router.pathname, initialItems]);
@@ -96,12 +96,13 @@ const SideNavigationBar = () => {
   return (
     <div
       className={twMerge([
-        "col-span-1 flex h-full flex-col space-y-4 p-4 shadow transition-all",
+        "sticky top-0 col-span-1 flex h-screen flex-col space-y-4 p-4 shadow transition-all",
         isExpanded ? "w-64" : "w-min",
       ])}
     >
       <div className="flex items-center space-x-2">
         <UserButton
+          afterSignOutUrl="/"
           appearance={{
             elements: {
               userButtonAvatarBox: "w-12 h-12",

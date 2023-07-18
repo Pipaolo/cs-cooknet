@@ -3,13 +3,12 @@ import {
   ModalBody,
   ModalCloseButton,
   ModalContent,
-  ModalFooter,
   ModalHeader,
   ModalOverlay,
   type UseDisclosureReturn,
 } from "@chakra-ui/react";
-import { type Recipe } from "./RecipesGridItem";
 import { FaLink } from "react-icons/fa";
+import { type Recipe } from "../types";
 
 interface Props extends UseDisclosureReturn {
   recipe: Recipe;
@@ -28,7 +27,7 @@ export const RecipesExternalLinksModal = ({ recipe, ...props }: Props) => {
         <ModalCloseButton />
         <ModalBody>
           <ul className="flex list-disc flex-col space-y-2 p-4">
-            {recipe.videoUrls.map((link, index) => (
+            {/* {recipe.videoUrls.map((link, index) => (
               <li key={index}>
                 <a
                   href={link}
@@ -38,7 +37,7 @@ export const RecipesExternalLinksModal = ({ recipe, ...props }: Props) => {
                   <span>{link}</span>
                 </a>
               </li>
-            ))}
+            ))} */}
           </ul>
         </ModalBody>
       </ModalContent>

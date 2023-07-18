@@ -35,7 +35,7 @@ export const RecipesContainer = () => {
     }
 
     return recipes.data?.map((recipe) => (
-      <RecipesGridItem key={recipe.id} recipe={recipe} />
+      <RecipesGridItem key={recipe.id} recipePost={recipe} />
     ));
   };
 

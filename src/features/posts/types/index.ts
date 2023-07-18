@@ -11,3 +11,10 @@ export const PostsCreateSchema = z.object({
 });
 
 export type PostsCreateSchema = z.infer<typeof PostsCreateSchema>;
+
+export const PostsAddCommentSchema = z.object({
+  postId: z.string(),
+  content: z.string(),
+});
+
+export type PostsAddCommentSchema = z.infer<typeof PostsAddCommentSchema>;

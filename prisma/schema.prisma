@@ -11,7 +11,7 @@ datasource db {
 }
 
 model User {
-    id      String @id @default(cuid())
+    id      String @id @unique @default(cuid())
     clerkId String @unique
 
     createdAt   DateTime     @default(now())
@@ -25,23 +25,32 @@ model User {
     comments    Comment[]
     recipeBooks RecipeBook[]
     ratings     Rating[]
-    Recipe      Recipe[]
+    recipes     Recipe[]
+
+    followers User[] @relation("UserFollows")
+    following User[] @relation("UserFollows")
+}
+
+enum PostType {
+    RECIPE
+    SOCIAL
 }
 
 model Post {
     id        String   @id @default(cuid())
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
-    title     String
     content   String
 
     author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
     authorId String
 
     comments Comment[]
-    recipes  Recipe[]
-    ratings  Rating[]
-    tags     String[]
+    recipe   Recipe?
+
+    ratings Rating[]
+    tags    String[]
+    type    PostType
 }
 
 model Rating {
@@ -83,20 +92,44 @@ model RecipeBook {
 }
 
 model Recipe {
-    id          String   @id @default(cuid())
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
-    title       String
-    content     String
-    ingredients String[]
-    videoUrls   String[]
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    title     String
 
     author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
     authorId String
 
-    postId      String?
-    post        Post?        @relation(fields: [postId], references: [id], onDelete: Cascade)
+    postId String? @unique
+    post   Post?   @relation(fields: [postId], references: [id], onDelete: Cascade)
+
     recipeBooks RecipeBook[]
+    ingredients RecipeIngredient[]
+    videoLinks  RecipeVideoLink[]
+    procedures  String[]
+}
+
+model RecipeVideoLink {
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    url       String
+    label     String
+
+    recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+    recipeId String
+}
+
+model RecipeIngredient {
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    name      String
+    quantity  Int
+    unit      String
+
+    recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+    recipeId String
 }
 
 model Example {

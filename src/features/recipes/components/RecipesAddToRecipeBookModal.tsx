@@ -10,9 +10,9 @@ import {
   Select,
   Button,
 } from "@chakra-ui/react";
-import { type Recipe } from "./RecipesGridItem";
 import { api } from "~/utils/api";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { type Recipe } from "../types";
 
 interface Props extends UseDisclosureReturn {
   recipe: Recipe;
@@ -32,22 +32,20 @@ export const RecipesAddToRecipeBookModal = ({ recipe, ...props }: Props) => {
 
   const [selectedRecipeBookId, setSelectedRecipeBookId] = useState<string>("");
 
-  const checkIfInRecipeBook = useCallback(
-    (recipeBookId: string) => {
-      const currentRecipeBooks = recipe.recipeBooks.map((recipeBook) => {
-        return recipeBook.id;
-      });
+  const checkIfInRecipeBook = useCallback((recipeBookId: string) => {
+    return false;
+    // const currentRecipeBooks = recipe.recipeBooks.map((recipeBook) => {
+    //   return recipeBook.id;
+    // });
 
-      return currentRecipeBooks.includes(recipeBookId);
-    },
-    [recipe.recipeBooks]
-  );
+    // return currentRecipeBooks.includes(recipeBookId);
+  }, []);
 
   const toast = useToast();
   const options = useMemo(() => {
     return (
       recipeBooks.data?.map((recipeBook) => ({
-        existing: checkIfInRecipeBook(recipeBook.id),
+        existing: false,
         label: recipeBook.title,
         value: recipeBook.id,
       })) ?? []
