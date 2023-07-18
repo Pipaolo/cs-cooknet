@@ -17,6 +17,7 @@ import {
 import SelectCreatable from "react-select/creatable";
 import { api } from "~/utils/api";
 import { TRPCClientError } from "@trpc/client";
+import { useEffect } from "react";
 
 type Props = UseDisclosureReturn;
 
@@ -89,7 +90,14 @@ export const PostsCreateFormModal = (props: Props) => {
   const createOne = api.post.createOne.useMutation();
   const trpcUtils = api.useContext();
   const toast = useToast();
+  const { reset } = form;
 
+  useEffect(() => {
+    if (props.isOpen) {
+      return;
+    }
+    reset();
+  }, [props.isOpen, reset]);
   const onSubmit = async (data: PostsCreateSchema) => {
     try {
       await createOne.mutateAsync(data);
@@ -102,7 +110,7 @@ export const PostsCreateFormModal = (props: Props) => {
         duration: 9000,
         isClosable: true,
       });
-      form.reset();
+      reset({});
       props.onClose();
     } catch (error) {
       if (error instanceof TRPCClientError) {

@@ -7,10 +7,8 @@ import {
   MenuItem,
   MenuList,
   Spacer,
-  Text,
-  Tooltip,
 } from "@chakra-ui/react";
-import { FaClipboard, FaEllipsisH, FaEllipsisV, FaLink } from "react-icons/fa";
+import { FaClipboard, FaEllipsisH, FaLink } from "react-icons/fa";
 import { GiFruitBowl } from "react-icons/gi";
 import { type RouterOutputs } from "~/utils/api";
 

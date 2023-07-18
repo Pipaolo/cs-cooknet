@@ -1,9 +1,23 @@
-import { IconButton, Image, Tooltip, useToast } from "@chakra-ui/react";
+import {
+  IconButton,
+  Image,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  Spacer,
+  Tooltip,
+  useDisclosure,
+  useToast,
+} from "@chakra-ui/react";
 import { useUser } from "@clerk/nextjs";
 import { TRPCClientError } from "@trpc/client";
 import { DateTime } from "luxon";
 import { useMemo } from "react";
 import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
+import { FaEllipsisV } from "react-icons/fa";
+import { twMerge } from "tailwind-merge";
+import { ConfirmationModal } from "~/components/modals";
 import { type Post } from "~/features/posts";
 import { api } from "~/utils/api";
 
@@ -13,6 +27,8 @@ interface Props {
 
 export const HomePostItem = ({ post }: Props) => {
   const { user } = useUser();
+  const deleteDisclosure = useDisclosure();
+  const deleteOne = api.post.deleteOne.useMutation();
   const toggleLike = api.post.toggleLike.useMutation();
   const getOneLikes = api.post.getOneLikes.useQuery({
     postId: post.id,
@@ -24,6 +40,11 @@ export const HomePostItem = ({ post }: Props) => {
   const likes = useMemo(() => {
     return getOneLikes.data ?? [];
   }, [getOneLikes.data]);
+
+  const isAuthor = useMemo(() => {
+    if (!user) return false;
+    return user.id === post.author.clerkId;
+  }, [user, post.author.clerkId]);
 
   const isLiked = useMemo(() => {
     if (!likes) return false;
@@ -59,6 +80,48 @@ export const HomePostItem = ({ post }: Props) => {
     }
   };
 
+  const onDeleteConfirmed = async () => {
+    try {
+      await deleteOne.mutateAsync({
+        postId: post.id,
+      });
+
+      toast({
+        title: "Success",
+        description: "Post deleted successfully",
+        status: "success",
+        duration: 3000,
+      });
+
+      await trpcUtils.post.getAll.invalidate();
+    } catch (error) {
+      if (error instanceof TRPCClientError) {
+        toast({
+          title: "An error occurred.",
+          description: error.message,
+          status: "error",
+          duration: 3000,
+        });
+      }
+    }
+  };
+
+  const renderMenuItems = () => {
+    if (!isAuthor) return null;
+
+    return (
+      <>
+        <MenuItem
+          onClick={() => {
+            deleteDisclosure.onOpen();
+          }}
+        >
+          Delete
+        </MenuItem>
+      </>
+    );
+  };
+
   return (
     <div className="flex rounded-lg border bg-white p-4 shadow">
       <div className="flex w-full flex-col">
@@ -76,9 +139,36 @@ export const HomePostItem = ({ post }: Props) => {
               )}
             </span>
           </div>
+          <Spacer />
+          <Menu>
+            <Tooltip label="Actions">
+              <MenuButton
+                as={IconButton}
+                variant={"ghost"}
+                className={twMerge([
+                  "flex-shrink-0 rounded-full",
+                  !isAuthor && "hidden",
+                ])}
+                icon={<FaEllipsisV className="text-stone-500" />}
+              />
+            </Tooltip>
+            <MenuList className="font-medium">{renderMenuItems()}</MenuList>
+          </Menu>
         </div>
         <div className="mt-2 flex flex-col">
           <span className="line-clamp-6 text-sm">{post.content}</span>
+        </div>
+        <div className="mt-2 flex flex-wrap space-x-2">
+          {post.tags.map((tag, i) => {
+            return (
+              <span
+                key={i}
+                className="rounded-md border px-2 py-1 text-xs font-medium"
+              >
+                {tag}
+              </span>
+            );
+          })}
         </div>
         {/* Actions */}
         <div className="mt-2 flex flex-row items-center space-x-2">
@@ -106,6 +196,14 @@ export const HomePostItem = ({ post }: Props) => {
           </Tooltip>
         </div>
       </div>
+      <ConfirmationModal
+        {...deleteDisclosure}
+        titleText="Delete Post?"
+        descriptionText="You cannot undo this action."
+        isLoading={deleteOne.isLoading}
+        onConfirm={() => void onDeleteConfirmed()}
+        onCancel={deleteDisclosure.onClose}
+      />
     </div>
   );
 };

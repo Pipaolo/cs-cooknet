@@ -23,6 +23,19 @@ export const postRouter = createTRPCRouter({
       },
     });
   }),
+  deleteOne: privateProcedure
+    .input(
+      z.object({
+        postId: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      return ctx.prisma.post.delete({
+        where: {
+          id: input.postId,
+        },
+      });
+    }),
   getOneLikes: privateProcedure
     .input(
       z.object({
