@@ -48,11 +48,18 @@ export const postRouter = createTRPCRouter({
             input?.filterBy === "ALL"
               ? undefined
               : {
-                  followers: {
-                    some: {
-                      id: ctx.user.id,
+                  OR: [
+                    {
+                      id: input.authorId,
                     },
-                  },
+                    {
+                      followers: {
+                        some: {
+                          id: ctx.user.id,
+                        },
+                      },
+                    },
+                  ],
                 },
         },
         orderBy: {
