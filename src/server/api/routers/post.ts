@@ -50,7 +50,7 @@ export const postRouter = createTRPCRouter({
               : {
                   OR: [
                     {
-                      id: input.authorId,
+                      id: ctx.user.id,
                     },
                     {
                       followers: {
