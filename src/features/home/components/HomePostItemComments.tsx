@@ -1,5 +1,6 @@
 import { api } from "~/utils/api";
 import { type Post } from "~/features/posts";
+import { Image } from "@chakra-ui/react";
 
 interface Props {
   post: Post;
@@ -33,7 +34,8 @@ export const HomePostItemComments = ({ post }: Props) => {
           key={comment.id}
           className="flex max-w-full scroll-pr-4  space-x-2 p-4 pr-16"
         >
-          <img
+          <Image
+            alt="Profile Picture"
             src={comment.author?.profileUrl}
             className="aspect-square h-10 w-10 rounded-full bg-stone-400"
           />

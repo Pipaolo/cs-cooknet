@@ -1,6 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
 import {
-  Button,
   Heading,
   IconButton,
   Menu,
@@ -12,7 +11,6 @@ import {
   useDisclosure,
   useToast,
 } from "@chakra-ui/react";
-import { type RecipePost } from "~/features/recipes/types";
 import { DateTime } from "luxon";
 import Image from "next/image";
 import { HomeRecipeItemComments } from "./HomeRecipeItemComments";
@@ -22,9 +20,9 @@ import {
   FaEllipsisV,
   FaLink,
   FaTrash,
-  FaTrashAlt,
 } from "react-icons/fa";
 import { GiFruitBowl } from "react-icons/gi";
+import Lightbox from "yet-another-react-lightbox";
 import { RecipesAddToRecipeBookModal } from "~/features/recipes/components/RecipesAddToRecipeBookModal";
 import {
   RecipesExternalLinksModal,
@@ -32,7 +30,7 @@ import {
   RecipesProceduresModal,
 } from "~/features/recipes";
 import { type Post } from "~/features/posts";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useAuth, useUser } from "@clerk/nextjs";
 import { api } from "~/utils/api";
 import { ConfirmationModal } from "~/components/modals";
@@ -48,6 +46,7 @@ export const HomeRecipeItem = ({ post }: Props) => {
     DateTime.DATE_FULL
   );
   const { user } = useUser();
+  const [isImageOpen, setIsImageOpen] = useState(false);
   const toast = useToast();
   const recipe = post.recipe;
   const trpcUtils = api.useContext();
@@ -127,6 +126,10 @@ export const HomeRecipeItem = ({ post }: Props) => {
 
   if (recipe === null) return <div></div>;
 
+  const recipeImage =
+    recipe?.image ??
+    "https://plus.unsplash.com/premium_photo-1664360228046-a0a7ccf4fb38?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80";
+
   return (
     <div className="grid grid-cols-12 gap-2">
       {/* Header */}
@@ -183,15 +186,33 @@ export const HomeRecipeItem = ({ post }: Props) => {
       </div>
       {/* Image */}
       <div className="relative  col-span-8 h-[400px] overflow-hidden">
-        <Image
-          fill
-          className=" rounded-md object-cover"
-          src={
-            recipe?.image ??
-            "https://plus.unsplash.com/premium_photo-1664360228046-a0a7ccf4fb38?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
-          }
-          alt="food"
+        <Lightbox
+          open={isImageOpen}
+          close={() => setIsImageOpen(false)}
+          className="bg-opacity-20"
+          styles={{
+            container: {
+              background: "rgba(0,0,0,0.5)",
+            },
+          }}
+          slides={[
+            {
+              src: recipeImage,
+              alt: "image 1",
+              width: 3840,
+              height: 2560,
+            },
+          ]}
         />
+        <Tooltip label="Enlarge">
+          <Image
+            fill
+            onClick={() => setIsImageOpen(true)}
+            className="cursor-pointer  rounded-md object-cover"
+            src={recipeImage}
+            alt="food"
+          />
+        </Tooltip>
       </div>
       {/* Comments */}
       <HomeRecipeItemComments recipePost={post} />
