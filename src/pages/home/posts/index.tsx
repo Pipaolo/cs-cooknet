@@ -6,7 +6,9 @@ import { api } from "~/utils/api";
 
 const PostsPage = () => {
   const createPostDisclosure = useDisclosure();
-  const posts = api.post.getAll.useQuery();
+  const posts = api.post.getAll.useQuery({
+    filterBy: "ALL",
+  });
 
   const renderContent = () => {
     if (posts.isLoading) {
