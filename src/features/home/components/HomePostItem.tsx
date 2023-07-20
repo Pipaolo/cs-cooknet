@@ -16,11 +16,14 @@ import { DateTime } from "luxon";
 import Link from "next/link";
 import { useMemo } from "react";
 import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
-import { FaEllipsisV } from "react-icons/fa";
+import { FaComment, FaEllipsisV } from "react-icons/fa";
 import { twMerge } from "tailwind-merge";
 import { ConfirmationModal } from "~/components/modals";
 import { type Post } from "~/features/posts";
 import { api } from "~/utils/api";
+import { HomeRecipeItemComments } from "./HomeRecipeItemComments";
+import { HomePostItemComments } from "./HomePostItemComments";
+import { HomeRecipeItemCommentsModal } from "./HomeRecipeItemCommentsModal";
 
 interface Props {
   post: Post;
@@ -28,6 +31,8 @@ interface Props {
 
 export const HomePostItem = ({ post }: Props) => {
   const { user } = useUser();
+  const addCommentDisclosure = useDisclosure();
+
   const deleteDisclosure = useDisclosure();
   const deleteOne = api.post.deleteOne.useMutation();
   const toggleLike = api.post.toggleLike.useMutation();
@@ -199,7 +204,22 @@ export const HomePostItem = ({ post }: Props) => {
               }
             />
           </Tooltip>
+          <Tooltip label={"Comment"}>
+            <IconButton
+              className="rounded-full fill-none"
+              colorScheme="stone"
+              aria-label="Like"
+              variant={"ghost"}
+              onClick={addCommentDisclosure.onOpen}
+              icon={
+                <div className="flex items-center space-x-2 px-2">
+                  <FaComment className="h-5 w-5" />
+                </div>
+              }
+            />
+          </Tooltip>
         </div>
+        <HomePostItemComments post={post} />
       </div>
       <ConfirmationModal
         {...deleteDisclosure}
@@ -208,6 +228,10 @@ export const HomePostItem = ({ post }: Props) => {
         isLoading={deleteOne.isLoading}
         onConfirm={() => void onDeleteConfirmed()}
         onCancel={deleteDisclosure.onClose}
+      />
+      <HomeRecipeItemCommentsModal
+        {...addCommentDisclosure}
+        recipePost={post}
       />
     </div>
   );
