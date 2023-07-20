@@ -6,23 +6,70 @@ import { createTRPCRouter, privateProcedure } from "../trpc";
 import { z } from "zod";
 
 export const postRouter = createTRPCRouter({
-  getAll: privateProcedure.query(async ({ ctx }) => {
-    return ctx.prisma.post.findMany({
-      orderBy: {
-        createdAt: "desc",
-      },
-      include: {
-        author: true,
-        recipe: {
-          include: {
-            ingredients: true,
-            recipeBooks: true,
-            videoLinks: true,
+  getAllByAuthor: privateProcedure
+    .input(
+      z.object({
+        authorId: z.string().optional(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      return ctx.prisma.post.findMany({
+        where: {
+          author: {
+            id: input.authorId,
           },
         },
-      },
-    });
-  }),
+        orderBy: {
+          createdAt: "desc",
+        },
+        include: {
+          author: true,
+          recipe: {
+            include: {
+              ingredients: true,
+              recipeBooks: true,
+              videoLinks: true,
+            },
+          },
+        },
+      });
+    }),
+  getAll: privateProcedure
+    .input(
+      z.object({
+        filterBy: z.enum(["ALL", "FOLLOWING"]).default("ALL"),
+        authorId: z.string().optional(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      return ctx.prisma.post.findMany({
+        where: {
+          author:
+            input?.filterBy === "ALL"
+              ? undefined
+              : {
+                  followers: {
+                    some: {
+                      id: ctx.user.id,
+                    },
+                  },
+                },
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+        include: {
+          author: true,
+          recipe: {
+            include: {
+              ingredients: true,
+              recipeBooks: true,
+              videoLinks: true,
+            },
+          },
+        },
+      });
+    }),
   deleteOne: privateProcedure
     .input(
       z.object({

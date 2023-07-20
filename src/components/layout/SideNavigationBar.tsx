@@ -110,7 +110,12 @@ const SideNavigationBar = () => {
           }}
         />
         {isExpanded && (
-          <span className="text-lg font-bold">{user?.fullName}</span>
+          <div className="flex flex-col">
+            <span className="text-lg font-bold">{user?.fullName}</span>
+            <span className="text-sm font-medium text-gray-400">
+              {user?.primaryEmailAddress?.emailAddress}
+            </span>
+          </div>
         )}
       </div>
       <div className="flex flex-col justify-center space-y-2">

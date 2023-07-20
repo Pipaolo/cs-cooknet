@@ -4,6 +4,7 @@ import { clerkRouter } from "./routers/clerk";
 import { recipeRouter } from "./routers/recipe";
 import { recipeBookRouter } from "./routers/recipeBook";
 import { postRouter } from "./routers/post";
+import { userRouter } from "./routers/user";
 
 /**
  * This is the primary router for your server.
@@ -15,6 +16,7 @@ export const appRouter = createTRPCRouter({
   recipe: recipeRouter,
   recipeBook: recipeBookRouter,
   post: postRouter,
+  user: userRouter,
   example: exampleRouter,
 });
 

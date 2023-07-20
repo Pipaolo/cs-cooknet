@@ -13,6 +13,7 @@ import {
 import { useUser } from "@clerk/nextjs";
 import { TRPCClientError } from "@trpc/client";
 import { DateTime } from "luxon";
+import Link from "next/link";
 import { useMemo } from "react";
 import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import { FaEllipsisV } from "react-icons/fa";
@@ -132,7 +133,11 @@ export const HomePostItem = ({ post }: Props) => {
             alt="profile"
           />
           <div className="flex flex-col">
-            <span className="font-semibold">{post.author.email}</span>
+            <Link href={`/home/profile?user=${post.authorId}`}>
+              <span className="font-semibold hover:underline focus:underline active:underline">
+                {post.author.email}
+              </span>
+            </Link>
             <span className="text-sm text-gray-500">
               {DateTime.fromJSDate(post.createdAt).toLocaleString(
                 DateTime.DATE_FULL

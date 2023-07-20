@@ -37,6 +37,7 @@ import { useAuth, useUser } from "@clerk/nextjs";
 import { api } from "~/utils/api";
 import { ConfirmationModal } from "~/components/modals";
 import { TRPCClientError } from "@trpc/client";
+import Link from "next/link";
 
 interface Props {
   post: Post;
@@ -137,9 +138,11 @@ export const HomeRecipeItem = ({ post }: Props) => {
         />
         <div className="flex flex-col">
           <Heading size={"md"}>{recipe.title}</Heading>
-          <span className="stone-500 text-sm underline">
-            by {post.author.email}
-          </span>
+          <Link href={`/home/profile?user=${recipe.authorId}`}>
+            <span className="stone-500 text-sm hover:underline focus:underline active:underline">
+              {post.author.email}
+            </span>
+          </Link>
           <span className="stone-500 text-sm">{formattedDate}</span>
           <div className="mt-2 flex flex-wrap space-x-2">
             {post.tags.map((tag, i) => {
